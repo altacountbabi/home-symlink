@@ -59,6 +59,13 @@ impl Symlink {
             self.status = err.into();
         }
 
+        if let Some(parent) = to.parent()
+            && let Err(err) = fs::create_dir_all(parent)
+        {
+            self.status = err.into();
+            return;
+        }
+
         match unix::fs::symlink(from, &to) {
             Ok(()) => self.status = SymlinkStatus::Linked,
             Err(err) => self.status = err.into(),
