@@ -35,9 +35,12 @@ pub enum Command {
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Cli::parse();
 
-    let dir = args
-        .dir
-        .unwrap_or(expand_home(&env::var("HOME_SYMLINK_DIR")?));
+    let dir = args.dir.unwrap_or_else(|| {
+        expand_home(
+            &env::var("HOME_SYMLINK_DIR")
+                .expect("Neither a directory argument was passed or `HOME_SYMLINK_DIR` was set"),
+        )
+    });
 
     let package_dirs = fs::read_dir(dir)?.filter_map(Result::ok);
     let mut packages = Vec::new();
